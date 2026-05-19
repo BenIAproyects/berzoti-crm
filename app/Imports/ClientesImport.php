@@ -45,15 +45,15 @@ class ClientesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
                 continue;
             }
 
-            if (empty($contacto)) {
-                $this->errores++;
-                $this->erroresDetalle[] = "Fila {$fila}: El contacto principal es obligatorio.";
-                continue;
-            }
-
             $ruc    = trim($row['ruc'] ?? '');
             $correo = strtolower(trim($row['correo'] ?? ''));
             $nombreComercial = trim($row['nombre_comercial'] ?? '');
+
+            if (empty($ruc) && empty($correo)) {
+                $this->errores++;
+                $this->erroresDetalle[] = "Fila {$fila}: Debe tener al menos RUC o correo para poder identificar al cliente ({$razonSocial}).";
+                continue;
+            }
 
             // Detección de duplicados
             if ($this->esDuplicado($ruc, $correo, $razonSocial, $contacto)) {
@@ -79,7 +79,7 @@ class ClientesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
                     'ruc'                => $ruc ?: null,
                     'tipo_cliente'       => $tipo,
                     'sector'             => trim($row['sector'] ?? '') ?: null,
-                    'contacto_principal' => $contacto,
+                    'contacto_principal' => $contacto ?: null,
                     'cargo_contacto'     => trim($row['cargo_contacto'] ?? '') ?: null,
                     'telefono'           => trim($row['telefono'] ?? '') ?: null,
                     'whatsapp'           => trim($row['whatsapp'] ?? '') ?: null,

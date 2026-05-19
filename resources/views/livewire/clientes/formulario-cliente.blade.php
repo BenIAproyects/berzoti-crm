@@ -57,10 +57,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                     <input wire:model="contacto_principal" type="text"
                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                    @error('contacto_principal') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
                 <div>

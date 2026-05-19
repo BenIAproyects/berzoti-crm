@@ -73,7 +73,7 @@ class FormularioCliente extends Component
             'ruc' => $rulesRuc,
             'tipo_cliente' => 'required|string',
             'sector' => 'nullable|string|max:100',
-            'contacto_principal' => 'required|string|max:150',
+            'contacto_principal' => 'nullable|string|max:150',
             'cargo_contacto' => 'nullable|string|max:100',
             'telefono' => 'nullable|string|max:30',
             'whatsapp' => 'nullable|string|max:30',
@@ -101,7 +101,6 @@ class FormularioCliente extends Component
     {
         return [
             'razon_social.required' => 'La razón social es obligatoria.',
-            'contacto_principal.required' => 'El contacto principal es obligatorio.',
             'ruc.unique' => 'Este RUC ya está registrado.',
             'correo.email' => 'El correo no tiene un formato válido.',
         ];
