@@ -15,15 +15,16 @@ class Cotizacion extends Model
     protected $fillable = [
         'codigo', 'cliente_id', 'campana_id', 'usuario_id',
         'fecha', 'monto_total', 'estado', 'observaciones',
-        'fecha_envio', 'fecha_respuesta',
+        'fecha_envio', 'fecha_respuesta', 'convertida_a_oc',
     ];
 
     protected $casts = [
-        'fecha'          => 'date',
-        'fecha_envio'    => 'date',
+        'fecha'           => 'date',
+        'fecha_envio'     => 'date',
         'fecha_respuesta' => 'date',
-        'monto_total'    => 'decimal:2',
-        'estado'         => EstadoCotizacion::class,
+        'monto_total'     => 'decimal:2',
+        'estado'          => EstadoCotizacion::class,
+        'convertida_a_oc' => 'boolean',
     ];
 
     protected static function booted(): void

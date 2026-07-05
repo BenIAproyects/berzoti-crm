@@ -21,7 +21,8 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">RUC</label>
-                    <input wire:model="ruc" type="text" maxlength="20"
+                    <input wire:model="ruc" type="text" inputmode="numeric" maxlength="11"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,'')"
                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                     @error('ruc') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
@@ -48,6 +49,34 @@
                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fuente</label>
+                    <select wire:model="fuente"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">— Sin definir —</option>
+                        @foreach($fuentes as $f)
+                            <option value="{{ $f->value }}">{{ $f->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Zona</label>
+                    <input wire:model="zona" type="text" placeholder="Ej: Lima Norte, Arequipa..."
+                           class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Segmento</label>
+                    <select wire:model="segmento"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">— Sin definir —</option>
+                        @foreach($segmentos as $s)
+                            <option value="{{ $s->value }}">{{ $s->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
             </div>
         </div>
 
@@ -70,7 +99,8 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                    <input wire:model="telefono" type="text"
+                    <input wire:model="telefono" type="text" inputmode="numeric" maxlength="9"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,'')"
                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 

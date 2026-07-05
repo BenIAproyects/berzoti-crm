@@ -11,6 +11,10 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\VendedorController;
+use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\GuiaRemisionController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\OrdenCompraController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,15 +29,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/clientes/importar', [ClienteController::class, 'importar'])->name('clientes.importar')->middleware('permission:clientes.importar');
+    Route::get('/clientes/importar-historico', [ClienteController::class, 'importarHistorico'])->name('clientes.importar-historico')->middleware('permission:clientes.importar');
     Route::get('/clientes/template', [ClienteController::class, 'descargarTemplate'])->name('clientes.template')->middleware('permission:clientes.importar');
     Route::get('/clientes/exportar', [ClienteController::class, 'exportar'])->name('clientes.exportar')->middleware('permission:clientes.exportar');
     Route::resource('clientes', ClienteController::class)->only(['index', 'create', 'show', 'edit']);
     Route::resource('campanas', CampanaController::class)->only(['index', 'create', 'show', 'edit']);
+    Route::delete('/campanas/{campana}', [CampanaController::class, 'destroy'])->name('campanas.destroy')->middleware('permission:campanas.eliminar');
     Route::resource('plantillas', PlantillaController::class)->only(['index', 'create', 'edit']);
     Route::resource('correos', CorreoController::class)->only(['index']);
     Route::resource('tareas', TareaController::class)->only(['index']);
     Route::get('/cotizaciones', [CotizacionController::class, 'index'])->name('cotizaciones.index');
     Route::get('/cotizaciones/{cotizacion}/imprimir', [CotizacionController::class, 'imprimir'])->name('cotizaciones.imprimir');
+    Route::get('/ordenes-compra', [OrdenCompraController::class, 'index'])->name('ordenes-compra.index')->middleware('permission:ordenes.ver');
+    Route::get('/facturas', [FacturaController::class, 'index'])->name('facturas.index')->middleware('permission:facturas.ver');
+    Route::get('/guias-remision', [GuiaRemisionController::class, 'index'])->name('guias-remision.index')->middleware('permission:guias.ver');
+    Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index')->middleware('permission:pagos.ver');
+
     Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index')->middleware('permission:reportes.ver');
     Route::get('/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar')->middleware('permission:reportes.ver');
 

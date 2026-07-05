@@ -22,6 +22,14 @@ class ListaCampanas extends Component
     public function updatingBusqueda(): void { $this->resetPage(); }
     public function updatingFiltroEstado(): void { $this->resetPage(); }
 
+    public function eliminar(int $id): void
+    {
+        $campana = Campana::findOrFail($id);
+        $campana->clientes()->detach();
+        $campana->delete();
+        session()->flash('success', 'Campaña eliminada correctamente.');
+    }
+
     public function render()
     {
         $campanas = Campana::withCount('clientes')

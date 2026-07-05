@@ -45,11 +45,24 @@
                 <span class="text-sm font-medium text-indigo-700">
                     {{ $campana->clientes_count }} cliente(s)
                 </span>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3">
                     <a href="{{ route('campanas.show', $campana) }}"
                        class="text-xs font-medium text-indigo-600 hover:text-indigo-800">
-                        Ver detalle →
+                        Ver →
                     </a>
+                    @can('campanas.editar')
+                    <a href="{{ route('campanas.edit', $campana) }}"
+                       class="text-xs font-medium text-gray-500 hover:text-gray-700">
+                        Editar
+                    </a>
+                    @endcan
+                    @can('campanas.eliminar')
+                    <button wire:click="eliminar({{ $campana->id }})"
+                            wire:confirm="¿Eliminar la campaña '{{ addslashes($campana->nombre) }}'? Esta acción no se puede deshacer."
+                            class="text-xs font-medium text-red-500 hover:text-red-700">
+                        Eliminar
+                    </button>
+                    @endcan
                 </div>
             </div>
         </div>

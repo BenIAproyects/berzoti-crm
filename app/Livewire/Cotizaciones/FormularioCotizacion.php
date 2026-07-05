@@ -6,6 +6,7 @@ use App\Enums\EstadoCotizacion;
 use App\Models\Campana;
 use App\Models\Cliente;
 use App\Models\Cotizacion;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class FormularioCotizacion extends Component
@@ -25,8 +26,6 @@ class FormularioCotizacion extends Component
 
     public array $items = [];
 
-    protected $listeners = ['editar-cotizacion' => 'editar'];
-
     public function mount(Cliente $cliente): void
     {
         $this->cliente = $cliente;
@@ -34,6 +33,7 @@ class FormularioCotizacion extends Component
         $this->agregarItem();
     }
 
+    #[On('editar-cotizacion')]
     public function editar(int $id): void
     {
         $this->cotizacion      = Cotizacion::with('items')->findOrFail($id);

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Cotizacion;
 use App\Models\CorreoEnviado;
+use App\Models\Factura;
+use App\Models\GuiaRemision;
+use App\Models\OrdenCompra;
 use App\Models\Seguimiento;
 use App\Models\Tarea;
 use App\Models\Campana;
@@ -53,6 +56,29 @@ class DashboardController extends Controller
         // Campañas activas
         $campanasActivas = Campana::activas()->count();
 
+        // KPIs comerciales (si el usuario tiene permisos)
+        $kpiComercial = [];
+        if ($user->can('ordenes.ver') || $user->can('facturas.ver')) {
+            $ocQuery = OrdenCompra::whereNotIn('estado', ['anulada']);
+            $facQuery = Factura::whereNotIn('estado_pago', ['anulada']);
+
+            if (! $esAdmin) {
+                $ocQuery  = $ocQuery->where('vendedor_id', $user->id);
+                $facQuery = $facQuery->where('vendedor_id', $user->id);
+            }
+
+            $kpiComercial = [
+                'ocs_abiertas'       => (clone $ocQuery)->whereNotIn('estado', ['entregada'])->count(),
+                'ocs_total'          => (float) (clone $ocQuery)->whereNotIn('estado', ['entregada'])->sum('total'),
+                'facturas_vencidas'  => (clone $facQuery)->vencidas()->count(),
+                'monto_vencido'      => (float) (clone $facQuery)->vencidas()->sum('saldo_pendiente'),
+                'saldo_cobrar'       => (float) (clone $facQuery)->whereNotIn('estado_pago', ['pagada'])->sum('saldo_pendiente'),
+                'guias_pendientes'   => $user->can('guias.ver')
+                    ? GuiaRemision::pendientesEntrega()->when(! $esAdmin, fn($q) => $q->where('vendedor_id', $user->id))->count()
+                    : null,
+            ];
+        }
+
         // Top vendedores (solo admin/supervisor)
         $topVendedores = [];
         if ($esAdmin) {
@@ -70,7 +96,8 @@ class DashboardController extends Controller
             'totalClientes', 'clientesNuevos', 'tareasVencidas', 'tareasPendientes',
             'correosTotal', 'correosMes', 'cotizacionesEnviadas', 'cotizacionesAprobadas',
             'cotizacionesRechazadas', 'montoAprobado', 'seguimientosSemana',
-            'embudo', 'sinSeguimiento', 'campanasActivas', 'topVendedores', 'esAdmin'
+            'embudo', 'sinSeguimiento', 'campanasActivas', 'topVendedores', 'esAdmin',
+            'kpiComercial'
         ));
     }
 }

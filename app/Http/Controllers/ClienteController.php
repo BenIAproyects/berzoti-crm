@@ -50,6 +50,11 @@ class ClienteController extends Controller
         return view('clientes.importar');
     }
 
+    public function importarHistorico()
+    {
+        return view('clientes.importar-historico');
+    }
+
     public function descargarTemplate()
     {
         return Excel::download(new TemplateClientesExport(), 'template_clientes.xlsx');

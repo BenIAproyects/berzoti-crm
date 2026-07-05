@@ -45,7 +45,7 @@
                                 Imprimir
                             </a>
                             @can('cotizaciones.editar')
-                            <button wire:click="$dispatch('editar-cotizacion', { id: {{ $cot->id }} })"
+                            <button wire:click="editar({{ $cot->id }})"
                                     class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
                                 Editar
                             </button>

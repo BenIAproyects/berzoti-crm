@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\EstadoComercial;
+use App\Enums\FuenteCliente;
+use App\Enums\SegmentoCliente;
 use App\Enums\TipoCliente;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +22,8 @@ class Cliente extends Model
         'vendedor_asignado_id', 'estado_comercial', 'prioridad', 'origen',
         'cantidad_compra', 'mes_contacto', 'precio_ano_anterior',
         'observaciones', 'fecha_ultimo_contacto', 'fecha_proximo_contacto', 'activo',
+        'fuente', 'zona', 'segmento',
+        'requiere_validacion', 'cantidad_original_excel',
     ];
 
     protected $casts = [
@@ -27,8 +31,11 @@ class Cliente extends Model
         'fecha_ultimo_contacto' => 'date',
         'fecha_proximo_contacto' => 'date',
         'estado_comercial' => EstadoComercial::class,
-        'tipo_cliente' => TipoCliente::class,
-        'cantidad_compra' => 'integer',
+        'tipo_cliente'     => TipoCliente::class,
+        'fuente'                => FuenteCliente::class,
+        'segmento'              => SegmentoCliente::class,
+        'requiere_validacion'   => 'boolean',
+        'cantidad_compra'       => 'integer',
         'precio_ano_anterior' => 'decimal:2',
     ];
 
@@ -63,6 +70,41 @@ class Cliente extends Model
     public function cotizaciones(): HasMany
     {
         return $this->hasMany(Cotizacion::class);
+    }
+
+    public function ordenesCompra(): HasMany
+    {
+        return $this->hasMany(OrdenCompra::class);
+    }
+
+    public function facturas(): HasMany
+    {
+        return $this->hasMany(Factura::class);
+    }
+
+    public function guiasRemision(): HasMany
+    {
+        return $this->hasMany(GuiaRemision::class);
+    }
+
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class);
+    }
+
+    public function contactos(): HasMany
+    {
+        return $this->hasMany(ClienteContacto::class);
+    }
+
+    public function correos(): HasMany
+    {
+        return $this->hasMany(ClienteCorreo::class);
+    }
+
+    public function telefonos(): HasMany
+    {
+        return $this->hasMany(ClienteTelefono::class);
     }
 
     public function campanas(): BelongsToMany

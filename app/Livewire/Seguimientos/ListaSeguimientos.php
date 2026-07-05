@@ -4,6 +4,7 @@ namespace App\Livewire\Seguimientos;
 
 use App\Models\Cliente;
 use App\Models\Seguimiento;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,7 +14,8 @@ class ListaSeguimientos extends Component
 
     public Cliente $cliente;
 
-    protected $listeners = ['seguimiento-guardado' => '$refresh'];
+    #[On('seguimiento-guardado')]
+    public function refrescar(): void {}
 
     public function mount(Cliente $cliente): void
     {

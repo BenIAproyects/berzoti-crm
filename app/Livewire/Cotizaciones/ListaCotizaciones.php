@@ -5,6 +5,7 @@ namespace App\Livewire\Cotizaciones;
 use App\Enums\EstadoCotizacion;
 use App\Models\Cliente;
 use App\Models\Cotizacion;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,7 +15,13 @@ class ListaCotizaciones extends Component
 
     public Cliente $cliente;
 
-    protected $listeners = ['cotizacion-guardada' => '$refresh'];
+    #[On('cotizacion-guardada')]
+    public function refrescar(): void {}
+
+    public function editar(int $id): void
+    {
+        $this->dispatch('editar-cotizacion', id: $id);
+    }
 
     public function mount(Cliente $cliente): void
     {

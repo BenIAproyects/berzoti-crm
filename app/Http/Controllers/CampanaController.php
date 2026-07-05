@@ -31,5 +31,10 @@ class CampanaController extends Controller
 
     public function update(Request $request, Campana $campana) { }
 
-    public function destroy(Campana $campana) { }
+    public function destroy(Campana $campana)
+    {
+        $campana->clientes()->detach();
+        $campana->delete();
+        return redirect()->route('campanas.index')->with('success', 'Campaña eliminada correctamente.');
+    }
 }

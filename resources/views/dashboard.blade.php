@@ -135,6 +135,64 @@
         </div>
     </div>
 
+    {{-- KPIs comerciales --}}
+    @if(!empty($kpiComercial))
+    <div class="mb-6">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Módulo Comercial</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <a href="{{ route('ordenes-compra.index') }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:border-indigo-200 transition-colors">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-gray-500">OCs Abiertas</p>
+                    <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
+                </div>
+                <p class="text-3xl font-bold text-gray-800">{{ $kpiComercial['ocs_abiertas'] }}</p>
+                <p class="text-xs text-gray-500 mt-1">S/ {{ number_format($kpiComercial['ocs_total'], 0) }}</p>
+            </a>
+
+            <a href="{{ route('facturas.index') }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:border-amber-200 transition-colors">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-gray-500">Por Cobrar</p>
+                    <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+                <p class="text-3xl font-bold text-gray-800">S/ {{ number_format($kpiComercial['saldo_cobrar'], 0) }}</p>
+                <p class="text-xs text-gray-500 mt-1">saldo pendiente</p>
+            </a>
+
+            <a href="{{ route('facturas.index') }}" class="bg-white rounded-xl shadow-sm border border-{{ $kpiComercial['facturas_vencidas'] > 0 ? 'red' : 'gray' }}-100 p-5 hover:border-red-200 transition-colors">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-gray-500">Facturas Vencidas</p>
+                    <div class="w-8 h-8 {{ $kpiComercial['facturas_vencidas'] > 0 ? 'bg-red-100' : 'bg-gray-100' }} rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 {{ $kpiComercial['facturas_vencidas'] > 0 ? 'text-red-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                </div>
+                <p class="text-3xl font-bold {{ $kpiComercial['facturas_vencidas'] > 0 ? 'text-red-600' : 'text-gray-800' }}">{{ $kpiComercial['facturas_vencidas'] }}</p>
+                <p class="text-xs {{ $kpiComercial['facturas_vencidas'] > 0 ? 'text-red-500' : 'text-gray-500' }} mt-1">
+                    S/ {{ number_format($kpiComercial['monto_vencido'], 0) }} vencido
+                </p>
+            </a>
+
+            @if($kpiComercial['guias_pendientes'] !== null)
+            <a href="{{ route('guias-remision.index') }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:border-teal-200 transition-colors">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-gray-500">Guías Pendientes</p>
+                    <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    </div>
+                </div>
+                <p class="text-3xl font-bold text-gray-800">{{ $kpiComercial['guias_pendientes'] }}</p>
+                <p class="text-xs text-gray-500 mt-1">pendientes de entrega</p>
+            </a>
+            @endif
+
+        </div>
+    </div>
+    @endif
+
     {{-- Top vendedores (solo admin/supervisor) --}}
     @if($esAdmin && $topVendedores->isNotEmpty())
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

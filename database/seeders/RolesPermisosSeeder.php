@@ -30,6 +30,14 @@ class RolesPermisosSeeder extends Seeder
             'tareas.ver', 'tareas.crear', 'tareas.completar',
             // Cotizaciones
             'cotizaciones.ver', 'cotizaciones.crear', 'cotizaciones.editar',
+            // Órdenes de Compra
+            'ordenes.ver', 'ordenes.crear', 'ordenes.editar', 'ordenes.eliminar',
+            // Facturas
+            'facturas.ver', 'facturas.crear', 'facturas.editar', 'facturas.eliminar',
+            // Guías de Remisión
+            'guias.ver', 'guias.crear', 'guias.editar', 'guias.eliminar',
+            // Pagos
+            'pagos.ver', 'pagos.crear', 'pagos.editar', 'pagos.eliminar',
             // Reportes
             'reportes.ver',
             // Dashboard
@@ -52,6 +60,10 @@ class RolesPermisosSeeder extends Seeder
             'seguimientos.ver', 'seguimientos.crear',
             'tareas.ver', 'tareas.crear', 'tareas.completar',
             'cotizaciones.ver', 'cotizaciones.crear', 'cotizaciones.editar',
+            'ordenes.ver', 'ordenes.crear', 'ordenes.editar',
+            'facturas.ver', 'facturas.crear', 'facturas.editar',
+            'guias.ver', 'guias.crear', 'guias.editar',
+            'pagos.ver', 'pagos.crear', 'pagos.editar',
             'dashboard.ver',
         ]);
 
@@ -63,6 +75,10 @@ class RolesPermisosSeeder extends Seeder
             'seguimientos.ver',
             'tareas.ver',
             'cotizaciones.ver',
+            'ordenes.ver',
+            'facturas.ver',
+            'guias.ver',
+            'pagos.ver',
             'reportes.ver',
             'dashboard.ver', 'dashboard.global',
         ]);

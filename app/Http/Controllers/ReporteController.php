@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\CorreoEnviado;
 use App\Models\Cotizacion;
+use App\Models\Factura;
+use App\Models\GuiaRemision;
+use App\Models\OrdenCompra;
 use App\Models\Seguimiento;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
@@ -19,12 +22,14 @@ class ReporteController extends Controller
 
     public function exportar(Request $request)
     {
-        $tab          = $request->input('tab', 'clientes');
-        $filtroEstado = $request->input('estado', '');
+        $tab           = $request->input('tab', 'clientes');
+        $filtroEstado  = $request->input('estado', '');
         $filtroUsuario = $request->input('usuario', '');
-        $filename     = 'reporte_' . $tab . '_' . now()->format('Ymd_His') . '.csv';
+        $desde         = $request->input('desde', '');
+        $hasta         = $request->input('hasta', '');
+        $filename      = 'reporte_' . $tab . '_' . now()->format('Ymd_His') . '.csv';
 
-        return Response::stream(function () use ($tab, $filtroEstado, $filtroUsuario) {
+        return Response::stream(function () use ($tab, $filtroEstado, $filtroUsuario, $desde, $hasta) {
             $handle = fopen('php://output', 'w');
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
@@ -34,6 +39,9 @@ class ReporteController extends Controller
                 'tareas'       => $this->exportarTareas($handle, $filtroEstado, $filtroUsuario),
                 'cotizaciones' => $this->exportarCotizaciones($handle, $filtroEstado, $filtroUsuario),
                 'correos'      => $this->exportarCorreos($handle),
+                'ordenes'      => $this->exportarOrdenes($handle, $filtroUsuario, $desde, $hasta),
+                'cobranzas'    => $this->exportarCobranzas($handle, $filtroUsuario, $desde, $hasta),
+                'guias'        => $this->exportarGuias($handle, $filtroUsuario, $desde, $hasta),
                 default        => null,
             };
 
@@ -141,6 +149,88 @@ class ReporteController extends Controller
                         $r->asunto,
                         $r->estado_envio,
                         $r->error_mensaje ?? '',
+                    ]);
+                }
+            });
+    }
+
+    private function exportarOrdenes($handle, string $filtroUsuario, string $desde, string $hasta): void
+    {
+        fputcsv($handle, ['Código', 'N° OC', 'Cliente', 'RUC', 'Fecha OC', 'Estado', 'Subtotal', 'IGV', 'Total', 'Vendedor', 'Campaña']);
+        OrdenCompra::with(['cliente', 'vendedor', 'campana'])
+            ->whereNotIn('estado', ['anulada'])
+            ->when($filtroUsuario, fn($q) => $q->where('vendedor_id', $filtroUsuario))
+            ->when($desde,         fn($q) => $q->whereDate('fecha_oc', '>=', $desde))
+            ->when($hasta,         fn($q) => $q->whereDate('fecha_oc', '<=', $hasta))
+            ->orderByDesc('fecha_oc')
+            ->chunk(200, function ($rows) use ($handle) {
+                foreach ($rows as $r) {
+                    fputcsv($handle, [
+                        $r->codigo,
+                        $r->numero_oc ?? '',
+                        $r->cliente?->razon_social ?? '',
+                        $r->cliente?->ruc ?? '',
+                        $r->fecha_oc->format('d/m/Y'),
+                        $r->estado->label(),
+                        number_format($r->subtotal, 2),
+                        number_format($r->igv, 2),
+                        number_format($r->total, 2),
+                        $r->vendedor?->name ?? '',
+                        $r->campana?->nombre ?? '',
+                    ]);
+                }
+            });
+    }
+
+    private function exportarCobranzas($handle, string $filtroUsuario, string $desde, string $hasta): void
+    {
+        fputcsv($handle, ['Código', 'N° Factura', 'Cliente', 'RUC', 'F. Emisión', 'F. Vencimiento', 'Total', 'Cobrado', 'Saldo', 'Estado', 'Vendedor']);
+        Factura::with(['cliente', 'vendedor'])
+            ->whereNotIn('estado_pago', ['pagada', 'anulada'])
+            ->when($filtroUsuario, fn($q) => $q->where('vendedor_id', $filtroUsuario))
+            ->when($desde,         fn($q) => $q->whereDate('fecha_emision', '>=', $desde))
+            ->when($hasta,         fn($q) => $q->whereDate('fecha_emision', '<=', $hasta))
+            ->orderBy('fecha_vencimiento')
+            ->chunk(200, function ($rows) use ($handle) {
+                foreach ($rows as $r) {
+                    fputcsv($handle, [
+                        $r->codigo,
+                        $r->numero_factura ?? '',
+                        $r->cliente?->razon_social ?? '',
+                        $r->cliente?->ruc ?? '',
+                        $r->fecha_emision->format('d/m/Y'),
+                        $r->fecha_vencimiento?->format('d/m/Y') ?? '',
+                        number_format($r->total, 2),
+                        number_format($r->monto_pagado, 2),
+                        number_format($r->saldo_pendiente, 2),
+                        $r->estado_pago->label(),
+                        $r->vendedor?->name ?? '',
+                    ]);
+                }
+            });
+    }
+
+    private function exportarGuias($handle, string $filtroUsuario, string $desde, string $hasta): void
+    {
+        fputcsv($handle, ['Código', 'N° Guía', 'Cliente', 'OC', 'F. Emisión', 'F. Entrega', 'Estado', 'Dirección', 'Vendedor']);
+        GuiaRemision::with(['cliente', 'vendedor', 'ordenCompra'])
+            ->pendientesEntrega()
+            ->when($filtroUsuario, fn($q) => $q->where('vendedor_id', $filtroUsuario))
+            ->when($desde,         fn($q) => $q->whereDate('fecha_emision', '>=', $desde))
+            ->when($hasta,         fn($q) => $q->whereDate('fecha_emision', '<=', $hasta))
+            ->orderBy('fecha_emision')
+            ->chunk(200, function ($rows) use ($handle) {
+                foreach ($rows as $r) {
+                    fputcsv($handle, [
+                        $r->codigo,
+                        $r->numero_guia ?? '',
+                        $r->cliente?->razon_social ?? '',
+                        $r->ordenCompra?->codigo ?? '',
+                        $r->fecha_emision->format('d/m/Y'),
+                        $r->fecha_entrega?->format('d/m/Y') ?? '',
+                        $r->estado_entrega->label(),
+                        $r->direccion_entrega,
+                        $r->vendedor?->name ?? '',
                     ]);
                 }
             });

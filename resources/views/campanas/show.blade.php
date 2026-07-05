@@ -27,12 +27,25 @@
                     <span>Creada por: <strong class="text-gray-600">{{ $campana->creador->name }}</strong></span>
                 </div>
             </div>
-            @can('campanas.editar')
-            <a href="{{ route('campanas.edit', $campana) }}"
-               class="flex-shrink-0 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
-                Editar
-            </a>
-            @endcan
+            <div class="flex items-center gap-2 flex-shrink-0">
+                @can('campanas.editar')
+                <a href="{{ route('campanas.edit', $campana) }}"
+                   class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+                    Editar
+                </a>
+                @endcan
+                @can('campanas.eliminar')
+                <form method="POST" action="{{ route('campanas.destroy', $campana) }}"
+                      onsubmit="return confirm('¿Eliminar la campaña \'{{ addslashes($campana->nombre) }}\'? Esta acción no se puede deshacer.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+                        Eliminar
+                    </button>
+                </form>
+                @endcan
+            </div>
         </div>
 
         @if($campana->objetivo_comercial)

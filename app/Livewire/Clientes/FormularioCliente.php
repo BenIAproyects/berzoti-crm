@@ -3,6 +3,8 @@
 namespace App\Livewire\Clientes;
 
 use App\Enums\EstadoComercial;
+use App\Enums\FuenteCliente;
+use App\Enums\SegmentoCliente;
 use App\Enums\TipoCliente;
 use App\Models\Cliente;
 use App\Models\User;
@@ -39,6 +41,9 @@ class FormularioCliente extends Component
     public string $precio_ano_anterior = '';
     public string $observaciones = '';
     public string $fecha_proximo_contacto = '';
+    public string $fuente = '';
+    public string $zona = '';
+    public string $segmento = '';
 
     public function mount(?Cliente $cliente = null): void
     {
@@ -51,8 +56,11 @@ class FormularioCliente extends Component
                 'correo', 'correo_secundario', 'pais', 'departamento', 'provincia',
                 'distrito', 'direccion', 'referencia', 'prioridad', 'origen', 'observaciones',
             ]));
+            $this->zona = $cliente->zona ?? '';
             $this->tipo_cliente = $cliente->tipo_cliente->value;
             $this->estado_comercial = $cliente->estado_comercial->value;
+            $this->fuente = $cliente->fuente?->value ?? '';
+            $this->segmento = $cliente->segmento?->value ?? '';
             $this->vendedor_asignado_id = (string) ($cliente->vendedor_asignado_id ?? '');
             $this->fecha_proximo_contacto = $cliente->fecha_proximo_contacto?->format('Y-m-d') ?? '';
             $this->cantidad_compra = $cliente->cantidad_compra !== null ? (string) $cliente->cantidad_compra : '';
@@ -64,8 +72,8 @@ class FormularioCliente extends Component
     protected function rules(): array
     {
         $rulesRuc = $this->modoEdicion
-            ? 'nullable|string|max:20|unique:clientes,ruc,' . $this->cliente->id
-            : 'nullable|string|max:20|unique:clientes,ruc';
+            ? 'nullable|digits:11|unique:clientes,ruc,' . $this->cliente->id
+            : 'nullable|digits:11|unique:clientes,ruc';
 
         return [
             'razon_social' => 'required|string|max:255',
@@ -75,7 +83,7 @@ class FormularioCliente extends Component
             'sector' => 'nullable|string|max:100',
             'contacto_principal' => 'nullable|string|max:150',
             'cargo_contacto' => 'nullable|string|max:100',
-            'telefono' => 'nullable|string|max:30',
+            'telefono' => 'nullable|digits_between:7,9',
             'whatsapp' => 'nullable|string|max:30',
             'correo' => 'nullable|email|max:255',
             'correo_secundario' => 'nullable|email|max:255',
@@ -94,6 +102,9 @@ class FormularioCliente extends Component
             'precio_ano_anterior' => 'nullable|numeric|min:0',
             'observaciones' => 'nullable|string',
             'fecha_proximo_contacto' => 'nullable|date',
+            'fuente' => 'nullable|string',
+            'zona' => 'nullable|string|max:50',
+            'segmento' => 'nullable|string',
         ];
     }
 
@@ -101,8 +112,10 @@ class FormularioCliente extends Component
     {
         return [
             'razon_social.required' => 'La razón social es obligatoria.',
-            'ruc.unique' => 'Este RUC ya está registrado.',
-            'correo.email' => 'El correo no tiene un formato válido.',
+            'ruc.digits'            => 'El RUC debe tener exactamente 11 dígitos.',
+            'ruc.unique'            => 'Este RUC ya está registrado.',
+            'telefono.digits_between' => 'El teléfono debe tener entre 7 y 9 dígitos.',
+            'correo.email'          => 'El correo no tiene un formato válido.',
         ];
     }
 
@@ -122,6 +135,12 @@ class FormularioCliente extends Component
         if (empty($datos['precio_ano_anterior'])) {
             $datos['precio_ano_anterior'] = null;
         }
+        if (empty($datos['fuente'])) {
+            $datos['fuente'] = null;
+        }
+        if (empty($datos['segmento'])) {
+            $datos['segmento'] = null;
+        }
 
         if ($this->modoEdicion) {
             $this->cliente->update($datos);
@@ -137,8 +156,10 @@ class FormularioCliente extends Component
     public function render()
     {
         return view('livewire.clientes.formulario-cliente', [
-            'tipos' => TipoCliente::cases(),
-            'estados' => EstadoComercial::cases(),
+            'tipos'     => TipoCliente::cases(),
+            'estados'   => EstadoComercial::cases(),
+            'fuentes'   => FuenteCliente::cases(),
+            'segmentos' => SegmentoCliente::cases(),
             'vendedores' => User::role('vendedor')->orderBy('name')->get(),
         ]);
     }
