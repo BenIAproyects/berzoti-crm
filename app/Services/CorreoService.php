@@ -19,7 +19,10 @@ class CorreoService
         PlantillaCorreo $plantilla,
         ?Campana       $campana = null,
     ): CorreoEnviado {
-        if (!$cliente->correo) {
+        $destinatario = $cliente->correo
+            ?: $cliente->correos()->where('activo', true)->orderByDesc('es_principal')->value('email');
+
+        if (!$destinatario) {
             throw new \RuntimeException("El cliente {$cliente->razon_social} no tiene correo registrado.");
         }
 
@@ -32,7 +35,7 @@ class CorreoService
             'campana_id'        => $campana?->id,
             'plantilla_id'      => $plantilla->id,
             'usuario_id'        => auth()->id(),
-            'destinatario'      => $cliente->correo,
+            'destinatario'      => $destinatario,
             'asunto'            => $plantilla->renderizarAsunto($cliente),
             'cuerpo_renderizado' => $plantilla->renderizar($cliente),
             'estado_envio'      => 'pendiente',
@@ -55,12 +58,20 @@ class CorreoService
             throw new \RuntimeException('Solo se pueden enviar correos desde campañas activas.');
         }
 
-        $clientes = $campana->clientes()->activos()->whereNotNull('correo')->get();
+        $clientes = $campana->clientes()->activos()->with('correos')->get();
 
         $enviados = 0;
         $omitidos = 0;
 
         foreach ($clientes as $cliente) {
+            $destinatario = $cliente->correo
+                ?: $cliente->correos->where('activo', true)->sortByDesc('es_principal')->first()?->email;
+
+            if (!$destinatario) {
+                $omitidos++;
+                continue;
+            }
+
             // Evitar reenvío si ya se le envió en esta campaña con esta plantilla
             $yaEnviado = CorreoEnviado::where('cliente_id', $cliente->id)
                 ->where('campana_id', $campana->id)
@@ -78,7 +89,7 @@ class CorreoService
                 'campana_id'        => $campana->id,
                 'plantilla_id'      => $plantilla->id,
                 'usuario_id'        => auth()->id(),
-                'destinatario'      => $cliente->correo,
+                'destinatario'      => $destinatario,
                 'asunto'            => $plantilla->renderizarAsunto($cliente),
                 'cuerpo_renderizado' => $plantilla->renderizar($cliente),
                 'estado_envio'      => 'pendiente',
