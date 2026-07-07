@@ -25,7 +25,7 @@ class HistorialCorreos extends Component
         $correo = CorreoEnviado::find($correoId);
         if ($correo && $correo->estado_envio === 'fallido') {
             $correo->update(['estado_envio' => 'pendiente', 'error_mensaje' => null]);
-            EnviarCorreoJob::dispatch($correo->id);
+            EnviarCorreoJob::dispatchSync($correo->id);
         }
     }
 
@@ -37,7 +37,7 @@ class HistorialCorreos extends Component
 
         foreach ($fallidos as $correo) {
             $correo->update(['estado_envio' => 'pendiente', 'error_mensaje' => null]);
-            EnviarCorreoJob::dispatch($correo->id);
+            EnviarCorreoJob::dispatchSync($correo->id);
         }
     }
 
@@ -48,7 +48,7 @@ class HistorialCorreos extends Component
             ->get();
 
         foreach ($pendientes as $correo) {
-            EnviarCorreoJob::dispatch($correo->id);
+            EnviarCorreoJob::dispatchSync($correo->id);
         }
     }
 

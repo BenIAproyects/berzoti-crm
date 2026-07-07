@@ -12,7 +12,7 @@ class SincronizarAperturas extends Component
 
     public function sincronizar(): void
     {
-        $apiKey = env('BREVO_API_KEY');
+        $apiKey = config('services.brevo.api_key');
 
         try {
             $sincronizados = 0;
