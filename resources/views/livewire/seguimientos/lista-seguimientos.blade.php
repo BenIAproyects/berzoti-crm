@@ -62,7 +62,6 @@
             </div>
         </div>
 
-        {{-- ── SEGUIMIENTO MANUAL ──────────────────────────────────────── --}}
         @else
         @php $s = $item['data']; @endphp
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4" wire:key="seg-{{ $s->id }}">
