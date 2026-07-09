@@ -54,13 +54,23 @@ class HistorialCorreos extends Component
 
     public function render()
     {
-        $correos = CorreoEnviado::with(['cliente', 'campana', 'plantilla', 'usuario'])
+        $baseQuery = CorreoEnviado::query()
+            ->when($this->clienteId, fn($q) => $q->where('cliente_id', $this->clienteId))
+            ->when($this->campanaId, fn($q) => $q->where('campana_id', $this->campanaId));
+
+        $stats = [
+            'enviados'  => (clone $baseQuery)->where('estado_envio', 'enviado')->count(),
+            'pendientes' => (clone $baseQuery)->where('estado_envio', 'pendiente')->count(),
+            'fallidos'  => (clone $baseQuery)->where('estado_envio', 'fallido')->count(),
+            'abiertos'  => (clone $baseQuery)->where('abierto', true)->count(),
+        ];
+
+        $correos = (clone $baseQuery)
+            ->with(['cliente', 'campana', 'plantilla', 'usuario'])
             ->when($this->filtroEstado, fn($q) => $q->where('estado_envio', $this->filtroEstado))
-            ->when($this->clienteId,   fn($q) => $q->where('cliente_id', $this->clienteId))
-            ->when($this->campanaId,   fn($q) => $q->where('campana_id', $this->campanaId))
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        return view('livewire.correos.historial-correos', compact('correos'));
+        return view('livewire.correos.historial-correos', compact('correos', 'stats'));
     }
 }
